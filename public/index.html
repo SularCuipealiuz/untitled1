@@ -1,0 +1,252 @@
+<html lang="">
+
+<head>
+    <title>Express</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html" ; charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+</head>
+
+<body class="body">
+    <div class="page-landscape" id="page-landscape">
+    <div class="page-landscape-box">
+        <img src="images/portrait.png" width="228" height="120" alt="">
+        <span>为了更好的体验，请使用横屏浏览</span>
+    </div>
+    </div>
+    <section>
+        <div class="aspect__box">
+        <div class="aspect__position">
+            <img class="bg-table" src="images/table/table-bg.png" alt="">
+            <div class="aspect__content-panel">
+                <div class="full-screen absolute">
+                    <div class="aspect_position_border">
+                        <div class="img-box">
+                            <img src="images/table/item-n-25.png">
+                            <div class="chips-box-panel">
+                                <div class="chips-box-row" style="width: 95.5%">
+                                    <div id="sedia_even" class="chips-box even left-side">
+                                        <div>雙</div>
+                                    </div>
+                                    <div class="dont-put"></div>
+                                    <div class="dont-put"></div>
+                                    <div id="sedia_odd" class="chips-box odd right-side">
+                                        <div>單</div>
+                                    </div>
+                                </div>
+                                <div class="chips-box-row">
+                                    <div id="sedia_fourth_r" class="chips-box left-side"></div>
+                                    <div id="sedia_third_r" class="chips-box left-side"></div>
+                                    <div id="sedia_third_w" class="chips-box right-side"></div>
+                                    <div id="sedia_fourth_w" class="chips-box right-side"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="full-screen absolute">
+                    <div class="bowl-panel dish-animation ">
+                        <img class="bowl " src="images/dish/bowl.png" alt="">
+                        <img class="plate " src="images/dish/plate.png" alt="">
+                        <div class="paper-panel-1 fadein-animation non-visible">
+                            <div class="relative" style="height: 100%; width: 100%">
+                                <div class="paper paper-1 red-paper">
+                                </div>
+                                <div class="paper paper-2 red-paper">
+                                </div>
+                                <div class="paper paper-3 red-paper">
+                                </div>
+                                <div class="paper paper-4 red-paper">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="paper-panel-2 fadein-animation non-visible">
+                            <div class="relative" style="height: 100%; width: 100%">
+                                <div class="paper paper-1 red-paper">
+                                </div>
+                                <div class="paper paper-2 red-paper">
+                                </div>
+                                <div class="paper paper-3 red-paper">
+                                </div>
+                                <div class="paper paper-4 red-paper">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="paper-panel-3 fadein-animation non-visible">
+                            <div class="relative" style="height: 100%; width: 100%">
+                                <div class="paper paper-1 red-paper">
+                                </div>
+                                <div class="paper paper-2 red-paper">
+                                </div>
+                                <div class="paper paper-3 red-paper">
+                                </div>
+                                <div class="paper paper-4 red-paper">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute font-panel">
+                        <div class="even-font"><span>雙</span>贏</div>
+                        <div class="odd-font"><span>單</span>贏</div>
+                    </div>
+                </div>
+                <div class="full-screen absolute condition-panel statusFadeAni non-visible">
+                    <img id="chose" class="non-visible" src="images/section/chose.png" alt="">
+                    <img id="onReady" class="non-visible" src="images/section/onReady.png" alt="">
+                    <img id="open" class="non-visible" src="images/section/open.png" alt="">
+                    <img id="please" class="non-visible" src="images/section/please.png" alt="">
+                    <img id="working" class="non-visible" src="images/section/working.png" alt="">
+                    <img id="wait" class="non-visible" src="images/section/wait.png" alt="">
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </section>
+    <section class="close-panel">
+        <div class="full-screen absolute black-cover non-visible">
+            <div class="confirm-panel non-visible">
+                <div class="sub-title"><span>提示</span></div>
+                <div class="hint"><span>確定要離開牌桌？</span></div>
+                <div class="row">
+                    <div class="btn-confirm"><span>確定</span></div>
+                    <div class="btn-close"><span>取消</span></div>
+                </div>
+            </div>
+            <div class="close"></div>
+        </div>
+    </section>
+    <section class="flex-box flex-center full-screen">
+    <div class="header">
+        <div class="profile">
+            <span class="user-name">UserName</span>
+            <div class="money-panel highlight">
+                <img src="images/table/money-box.png" alt="">
+                <div class="money">
+                    <span id="moneyValue"></span>
+                </div>
+            </div>
+        </div>
+        <div class="player-count">
+
+        </div>
+    </div>
+    <div class="slider left">
+
+<!--        <div class="btn btn-info">-->
+<!--            <img src="images/table/info.png" alt="">-->
+<!--            <span class="label">INFO</span>-->
+<!--        </div>-->
+        <div class="btn btn-exit">
+            <img src="images/table/exit.png" alt="">
+            <span class="label">EXIT</span>
+
+        </div>
+
+    </div>
+    <div class="slider right">
+        <div class="btn btn-history">
+            <img src="images/table/history.png" alt="">
+            <span class="label">色碟紀錄表</span>
+        </div>
+        <div class="list"></div>
+    </div>
+    <div class="footer">
+        <div class="ctrl-bar">
+            <img src="images/table/ScoreBar.png" alt="">
+            <div class="number-panel">
+                <span>1</span>
+            </div>
+            <div class="score-panel">
+                <div id="total" class="total-bet">0</div>
+                <div id="win" class="win highlight">0</div>
+            </div>
+            <div class="auto-play-panel">
+
+                <div class="auto-play-btn">
+                    <img class="" name="btn-off" src="images/table/auto-play-off.png" alt="">
+                    <img class="" name="btn-on" src="images/table/auto-play-on.png" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="btn-group">
+            <div class="btn btn-again" style="filter: brightness(0.5)">
+                <img src="images/table/again.png"/>
+                <span class="label">延續上把</span>
+            </div>
+            <div class="btn btn-cancel">
+                <img src="images/table/cancel.png"/>
+                <span class="label">取消押注</span>
+            </div>
+            <div class="btn btn-agree" style="margin-left: 7px">
+                <img src="images/table/agree.png"/>
+                <span class="label">確認押注</span>
+            </div>
+        </div>
+
+    </div>
+    <div class="chips-panel">
+        <div class="chips-panel-center">
+            <img class="bg-chip-table" src="images/table/table-bg2.png" alt="">
+            <div class="chips">
+                <div class="chips-img">
+                    <div class="shine-panel">
+                        <shine></shine>
+                    </div>
+                    <img class="chip-10000" src="images/chips/10000.png" alt=""
+                         name="10000">
+                </div>
+                <div class="chips-img">
+                    <img class="chip-5000" src="images/chips/5000.png" alt="" name="5000">
+                    <div class="shine-panel">
+                        <shine></shine>
+                    </div>
+
+                </div>
+                <div class="chips-img">
+
+                    <img class="chip-1000" src="images/chips/1000.png" alt="" name="1000">
+                    <div class="shine-panel">
+                        <shine></shine>
+                    </div>
+
+                </div>
+                <div class="chips-img">
+
+                    <img class="chip-500" src="images/chips/500.png" alt="" name="500">
+                    <div class="shine-panel">
+                        <shine></shine>
+                    </div>
+
+                </div>
+                <div class="chips-img">
+
+                    <img class="chip-100" src="images/chips/100.png" alt="" name="100">
+                    <div class="shine-panel">
+                        <shine></shine>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="full-screen absolute">
+        <div>
+            <div class="stop-watch-panel">
+                <div class="stop-watch">
+                    <img class="ten-digit clock" src="images/alarm/time-0.png" alt="">
+                    <img class="digit clock" src="images/alarm/time-0.png" alt="">
+                    <div class="background">
+                        <img src="images/alarm/time-background.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="list-cover"></div>
+    </section>
+    <script type="module" src="javascripts/jQuery.js"></script>
+    <script type="module" src="javascripts/main.js"></script>
+</body>
+
+</html>
