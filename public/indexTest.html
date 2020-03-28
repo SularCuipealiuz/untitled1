@@ -1,0 +1,140 @@
+<html lang="">
+
+<head>
+    <title>Express</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html" ; charset="utf-8">
+</head>
+<body class="body" style="overflow: hidden;">
+<div class="page-landscape" id="page-landscape">
+    <div class="page-landscape-box">
+        <img src="images/portrait.png" width="228" height="120" alt="">
+        <span>为了更好的体验，请使用横屏浏览</span>
+    </div>
+</div>
+    <iframe class="iframe-view" src="/index.html" frameborder="0"></iframe>
+    <script>
+      // document.body.addEventListener('touchmove', function (e) {
+      //   e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
+      // }, {passive: false});
+      document.ontouchmove = function(e){ e.preventDefault(); };
+
+      document.getElementsByClassName('iframe-view')[0].style.maxHeight = '375px!important;'
+
+        if(navigator.userAgent.match('CriOS')!==null){
+          document.getElementsByClassName('iframe-view')[0].classList.add('crios-view')
+        }
+      window.onload=function(){
+        setTimeout(function() {
+          window.scrollTo(0, 1)
+        }, 0);
+      };
+
+    </script>
+</body>
+<style>
+    @media screen and (orientation: portrait) {
+        .page-landscape {
+            display: block !important;
+        }
+    }
+
+    @media screen and (orientation: landscape) {
+        .page-landscape {
+            display: none !important;
+        }
+    }
+
+    @-webkit-keyframes page-landscapeAni {
+        0% {
+            -webkit-transform: rotate(90deg);
+        }
+        35% {
+            -webkit-transform: rotate(90deg);
+        }
+        70% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(0deg);
+        }
+    }
+
+    @keyframes page-landscapeAni {
+        0% {
+            transform: rotate(90deg);
+        }
+        35% {
+            transform: rotate(90deg);
+        }
+        70% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(0deg);
+        }
+    }
+
+    .page-landscape {
+        width: 100vw;
+        height: 100vh;
+        background: #333;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 9999999;
+        display: none;
+        text-align: center;
+
+        overflow: hidden;
+    }
+
+    .page-landscape-box {
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        top: 50%;
+        transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+        zoom: .4;
+    }
+
+    .page-landscape span {
+        font-size: 36px;
+        display: block;
+        color: #FFFFFF;
+        text-align: center;
+        width: 100%;
+        padding-top: 40px;
+        line-height: 2;
+
+        margin-top: 70px;
+    }
+
+    .page-landscape img {
+        -webkit-animation: page-landscapeAni 1.2s ease infinite alternate;
+        animation: page-landscapeAni 1.2s ease infinite alternate;
+    }
+
+    body {
+        margin: 0px;
+        background: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .iframe-view {
+        max-width: 800px;
+        max-height: 450px;
+        width: 100vw;
+        height: 100vh;
+    }
+    .crios-view {
+        max-width: 600px!important;
+        max-height: 330px!important;
+    }
+</style>
+</html>

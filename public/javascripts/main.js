@@ -28,11 +28,13 @@ let getChips = {
 }
 
 let clockTime = 0
-
+let shouldShowMoney = false
 let stopWatch = null
 let waitingTime = null
-
 let startingCurrFullExpect = ''
+
+let lastPutMoney = null
+let lastTotalMoneyValue
 
 const resetChips = () => {
   getChips = {
@@ -59,35 +61,37 @@ const returnChips = () => {
 }
 
 const toggleChips = (num, element) => {
-  $('.chips-img').removeClass('chip-active')
-  $(element).closest('.chips-img').addClass('chip-active')
+  if ($(element).closest('.chips-img.brightness').length === 0) {
+    $('.chips-img').removeClass('chip-active')
+    $(element).closest('.chips-img').addClass('chip-active')
 
-  getChips.chip_10000 = false
-  getChips.chip_5000 = false
-  getChips.chip_1000 = false
-  getChips.chip_500 = false
-  getChips.chip_100 = false
+    getChips.chip_10000 = false
+    getChips.chip_5000 = false
+    getChips.chip_1000 = false
+    getChips.chip_500 = false
+    getChips.chip_100 = false
 
-  switch (num) {
-    case 10000: {
-      getChips.chip_10000 = true
-      break
-    }
-    case 5000: {
-      getChips.chip_5000 = true
-      break
-    }
-    case 1000: {
-      getChips.chip_1000 = true
-      break
-    }
-    case 500: {
-      getChips.chip_500 = true
-      break
-    }
-    case 100: {
-      getChips.chip_100 = true
-      break
+    switch (num) {
+      case 10000: {
+        getChips.chip_10000 = true
+        break
+      }
+      case 5000: {
+        getChips.chip_5000 = true
+        break
+      }
+      case 1000: {
+        getChips.chip_1000 = true
+        break
+      }
+      case 500: {
+        getChips.chip_500 = true
+        break
+      }
+      case 100: {
+        getChips.chip_100 = true
+        break
+      }
     }
   }
 }
@@ -97,22 +101,30 @@ const sumChips = () => {
 }
 
 const toggleAutoPlay = (boolean) => {
-  const autoPlayOn = document.getElementsByName('btn-on')[0]
-  const autoPlayOff = document.getElementsByName('btn-off')[0]
+  $('.btn-on').removeClass('active')
+  $('.btn-off').removeClass('active')
 
   if (boolean === true) {
     autoPlay = false
-    autoPlayOn.classList.add('active')
-    autoPlayOff.classList.remove('active')
-  } else {
+    $('.btn-off').addClass('active')
+  } else if (boolean === false) {
     autoPlay = true
-    autoPlayOn.classList.remove('active')
-    autoPlayOff.classList.add('active')
+    $('.btn-on').addClass('active')
+    checkAutoPlay()
+  }
+}
+
+const checkAutoPlay = () => {
+  if (autoPlay === true) {
+    if (lastPutMoney !== null) {
+      $('.chips-box-panel')[0].innerHTML = lastPutMoney
+      $('.btn-again').addClass('brightness')
+      $('.btn-agree').click()
+    }
   }
 }
 
 let autoPlay = false
-toggleAutoPlay(autoPlay)
 getClassElement('auto-play-btn').addEventListener('click', () => {
   toggleAutoPlay(autoPlay)
 })
@@ -122,7 +134,11 @@ getClassElement('auto-play-btn').addEventListener('click', () => {
 //   totalBet: getClassElement('total-bet').innerHTML,
 //   win: getClassElement('win').innerHTML
 // }
-
+let hasCubyed = false
+let btnAgainActive = false
+let isDone = false
+let nowMoney = 0
+let lastMoneyValue = 0
 let isMobile = false
 let countUp
 let winMoney
@@ -131,8 +147,27 @@ let moneyValue = 0
 let winMoneyValue = 0
 let totalMoneyValue = 0
 let isOver = false
-
+let isOpen = false
 window.onload = function () {
+  setTimeout(function () {
+    $('.font-panel').removeClass('non-visible')
+  }, 2000)
+
+  document.addEventListener('touchstart', (event) => {
+    if (event.touches.length > 1) {
+      event.preventDefault()
+    }
+  }, {passive: false})
+
+  let lastTouchEnd = 0
+  document.addEventListener('touchend', (event) => {
+    const now = (new Date()).getTime()
+    if (now - lastTouchEnd <= 100) {
+      event.preventDefault()
+    }
+    lastTouchEnd = now
+  }, false)
+
   let sUserAgent = navigator.userAgent
   if (sUserAgent.indexOf('Android') > -1 || sUserAgent.indexOf('iPhone') > -1 || sUserAgent.indexOf('iPad') > -1 || sUserAgent.indexOf('iPod') > -1 || sUserAgent.indexOf('Symbian') > -1) {
     console.log('mobile')
@@ -183,31 +218,56 @@ window.onload = function () {
     }
   })
 
-  const login = api('login', {
-    name: 'fcacbt0001',
-    pass: '123456'
-  })
+  // const login = api('login', {
+  //   name: 'fcacbt0001',
+  //   pass: '123456'
+  // })
+  //
+  // login.done(function () {
+  //
+  // })
+  api('checkislogin', {}).done(function (res) {
+    const data = JSON.parse(res)
+    chipsVisible(data.data.balance)
 
-  login.done(function () {
+    if (data.sign !== true) {
+      showErrorMessage(data.message)
+    }
+    nowMoney = data.data.balance
+    countUp.update((nowMoney))
+    $('.user-name')[0].innerHTML = data.data.username
+  })
+  setInterval(function () {
     api('checkislogin', {}).done(function (res) {
       const data = JSON.parse(res)
-      countUp.update(data.data.balance)
-      $('.user-name')[0].innerHTML = data.data.username
-    })
-    setInterval(function () {
-      let lastMoney = 0
-      api('checkislogin', {}).done(function (res) {
-        const data = JSON.parse(res)
-        winMoneyValue = lastMoney - data.data.balance
-        if (winMoneyValue > 0) {
-          winMoney.update(winMoneyValue)
-        } else {
-          lastMoney = data.data.balance
-        }
+      chipsVisible(data.data.balance)
+      console.log(isOver, shouldShowMoney, isDone)
+      if (isOver === true && shouldShowMoney === true && isDone === true) {
         countUp.update(data.data.balance)
-      })
-    }, 1000)
-  })
+      }  else if (isOver === true && shouldShowMoney === false && isDone === false) {
+        isDone = true
+        countUp.update(data.data.balance)
+      }
+    })
+  }, 1000)
+}
+
+const chipsVisible = (num) => {
+  if (num < 10000) {
+    $('.chip-10000').closest('.chips-img').addClass('brightness')
+  }
+  if (num < 5000) {
+    $('.chip-5000').closest('.chips-img').addClass('brightness')
+  }
+  if (num < 1000) {
+    $('.chip-1000').closest('.chips-img').addClass('brightness')
+  }
+  if (num < 500) {
+    $('.chip-500').closest('.chips-img').addClass('brightness')
+  }
+  if (num < 100) {
+    $('.chip-100').closest('.chips-img').addClass('brightness')
+  }
 }
 
 const getLoadOpenCode = async (expect) => {
@@ -222,15 +282,29 @@ const getLoadOpenCode = async (expect) => {
 }
 
 const resetInit = () => {
+  resetChips()
+  btnAgainActive = false
+  shouldShowMoney = false
   isOver = false
+  isOpen = false
   totalMoneyValue = 0
+  lastMoneyValue = 0
+  // $('#win')[0].innerHTML = 0
   const moneyList = $('.put-money-panel')
   for (let e of moneyList) {
     e.remove()
   }
 
-  $('#total')[0].innerHTML = 0
+  const c = $('.table-chips')
+  for (let e of c) {
+    e.remove()
+  }
 
+  $('.betsResult.open').removeClass('open')
+  $('.even-font').removeClass('font-active')
+  $('.odd-font').removeClass('font-active')
+
+  $('#total')[0].innerHTML = 0
   $('.chips-img').removeClass('brightness')
   $('.stop-watch-panel').addClass('non-visible')
 
@@ -255,8 +329,13 @@ const resetInit = () => {
   setTimeout(function () {
     $('.condition-panel').removeClass('non-visible')
     $('#working').removeClass('non-visible')
-    $('.btn-agree').removeClass('brightness')
-    $('.btn-cancel').removeClass('brightness')
+
+    const chipValue = returnChips()
+    if (chipValue === undefined || chipValue === 0) {
+      $('.btn-agree').addClass('brightness')
+      $('.btn-cancel').addClass('brightness')
+    }
+    $('.btn-again').addClass('brightness')
 
     setTimeout(function () {
       $('.condition-panel').addClass('non-visible')
@@ -275,6 +354,12 @@ const resetInit = () => {
         $('.plate').removeClass('plate-shake-animation')
 
         setTimeout(function () {
+          console.log(nowMoney, lastTotalMoneyValue)
+          //TODO bug
+          if (lastPutMoney !== null && nowMoney > lastTotalMoneyValue) {
+            $('.btn-again').removeClass('brightness')
+          }
+
           $('.condition-panel').addClass('non-visible')
           $('#please').addClass('non-visible')
 
@@ -282,6 +367,9 @@ const resetInit = () => {
           $('.chips').removeClass('brightness')
           $('.chips-panel').removeClass('fade')
 
+          if (isOver !== true) {
+            checkAutoPlay()
+          }
         }, 3000)
       }, 4500)
     }, 3000)
@@ -296,19 +384,91 @@ const getLotteryTimes = () => {
   const response = api('lotterytimes', requestInfo)
   response.done(function (res) {
     const data = JSON.parse(res).data
+    const json = JSON.parse(res)
+    if (json.sign !== true) {
+      showErrorMessage(json.message)
+    }
 
+    $('.player-count .highlight')[0].innerHTML = data.onlinePlayerCount
     startingCurrFullExpect = data.currFullExpect
+
+    api('betsContent', {'expect': startingCurrFullExpect, 'lotteryname': 'mysedia'}).done(function (res) {
+      const data = JSON.parse(res).data
+
+
+
+      if(data.length>0) {
+        //TODO 有下住了
+        hasCubyed = true
+        let st = 0
+        for(let e of data){
+          let money = parseInt(e.amount)
+          st += money
+          let copy = $(`#${e.playid}`)[0].innerHTML
+          $(`#${e.playid}`)[0].innerHTML = copy + `<div class="put-money-panel"><span class="put-value">${money}</span></div>`
+
+          let n1 = parseInt(money/10000)
+          let m1 = money % 10000
+          let n2 = parseInt(m1/5000)
+          let m2 = m1 % 5000
+          let n3 = parseInt(m2/1000)
+          let m3 = m2 % 1000
+          let n4 = parseInt(m3/500)
+          let m4 = m3 % 500
+          let n5 = parseInt(m4/100)
+          let m5 = m4 % 100
+
+          if(n1 > 0){
+            $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-100"><img src="images/chips/100.png" alt=""></div>`
+
+            for(let i = 0; i< n1; i++){
+              $(`#${e.playid} .for-100`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/100.png" alt="">`
+            }
+          }
+          if(n2 > 0){
+            $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-500"><img src="images/chips/500.png" alt=""></div>`
+            for(let i = 0; i< n1; i++){
+              $(`#${e.playid} .for-500`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/500.png" alt="">`
+            }
+          }
+          if(n3 > 0){
+            $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-1000"><img src="images/chips/1000.png" alt=""></div>`
+            for(let i = 0; i< n1; i++){
+              $(`#${e.playid} .for-1000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/1000.png" alt="">`
+            }
+          }
+          if(n4 > 0){
+            $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-5000"><img src="images/chips/5000.png" alt=""></div>`
+            for(let i = 0; i< n1; i++){
+              $(`#${e.playid} .for-5000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/5000.png" alt="">`
+            }
+          }
+          if(n5 > 0){
+            $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-10000"><img src="images/chips/10000.png" alt=""></div>`
+            for(let i = 0; i< n1; i++){
+              $(`#${e.playid} .for-10000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/10000.png" alt="">`
+            }
+          }
+          const btn = $('.btn-agree').removeClass('brightness')
+          $(btn).click()
+        }
+
+        totalMoney.update(st)
+      }
+    })
+
+
     clockTime = data.remainTime
     const shouldGetLottery = -3
     const shouldEndGame = data.remainTime <= 10 ? true : false
-    if (shouldEndGame === true && waitingTime === null) {
+    if (shouldEndGame === true && waitingTime === null && hasCubyed !== true) {
       $('.condition-panel').removeClass('non-visible')
       $('#wait').removeClass('non-visible')
 
-      waitingTime = setTimeout(function () {
-        $('.condition-panel').addClass('non-visible')
-        $('#wait').addClass('non-visible')
-      }, 3000)
+      // waitingTime = setTimeout(function () {
+      //   $('.condition-panel').addClass('non-visible')
+      //   $('#wait').addClass('non-visible')
+      // }, 3000)
     }
 
     let tenDigit = Math.floor(clockTime / 10)
@@ -358,35 +518,63 @@ const getLotteryTimes = () => {
           for (let i = 0; i < list.length; i++) {
             list[i].classList.remove('red-paper', 'white-paper')
             // Math.random() * 100 > 50 ? list[i].classList.add('red-paper') : list[i].classList.add('white-paper')
-            openCodeList[i] === '0' ? list[i].classList.add('red-paper') : list[i].classList.add('white-paper')
+            openCodeList[i] === '1' ? list[i].classList.add('red-paper') : list[i].classList.add('white-paper')
           }
 
           const num = panel.querySelectorAll('.red-paper').length
 
-          if (num % 2 === 0) {
-            $('.even-font').addClass('font-active')
-            $('#sedia_even').addClass('box-highlight')
-          } else {
-            $('.odd-font').addClass('font-active')
-            $('#sedia_odd').addClass('box-highlight')
-          }
+          setTimeout(function () {
+            if (num % 2 === 0) {
+              $('.even-font').addClass('font-active')
+              $('#sedia_even').addClass('box-highlight')
+            } else {
+              $('.odd-font').addClass('font-active')
+              $('#sedia_odd').addClass('box-highlight')
+            }
 
-          if (num === 0) {
-            $('#sedia_fourth_w').addClass('box-highlight')
-          } else if (num === 1) {
-            $('#sedia_third_w').addClass('box-highlight')
-          } else if (num === 3) {
-            $('#sedia_third_r').addClass('box-highlight')
-          } else if (num === 4) {
-            $('#sedia_fourth_r').addClass('box-highlight')
-          }
+            if (num === 0) {
+              $('#sedia_fourth_w').addClass('box-highlight')
+            } else if (num === 1) {
+              $('#sedia_third_w').addClass('box-highlight')
+            } else if (num === 3) {
+              $('#sedia_third_r').addClass('box-highlight')
+            } else if (num === 4) {
+              $('#sedia_fourth_r').addClass('box-highlight')
+            }
+          }, 4000)
 
           setTimeout(function () {
             $('.font-active').removeClass('font-active')
-          }, 5000)
+            setTimeout(function () {
+              let info = {
+                expect: startingCurrFullExpect - 1,
+                lotteryname: 'mysedia'
+              }
+              const response = api('betsResult', info)
+
+              response.done(e => {
+                shouldShowMoney = true
+
+                let reg = /,+-$/gi
+                const d = JSON.parse(e)
+                const n = (d.data.amount.toString()).replace(reg, '')
+                if ((parseInt(n) !== 0)) {
+                  $('.betsResult').addClass('open')
+                  if (parseInt(n) > 0) {
+                    $('.betsValue').css('color', 'green')
+                  } else {
+                    $('.betsValue').css('color', 'red')
+                  }
+                  $('.betsValue')[0].innerHTML = d.data.amount
+                  winMoneyValue = d.data.amount > 0 ? d.data.amount : 0
+                  winMoney.update(winMoneyValue)
+                }
+              })
+            }, 100)
+          }, 6000)
           setTimeout(function () {
             $('.box-highlight').removeClass('box-highlight')
-          }, 10000)
+          }, 9000)
         }
       }
 
@@ -394,16 +582,18 @@ const getLotteryTimes = () => {
         $('.condition-panel').addClass('non-visible')
         $('#onReady').addClass('non-visible')
 
-        console.log('超過', shouldGetLottery, clockTime)
         clearInterval(keepCheckTime)
         getLotteryTimes()
+
         getLoadOpenCode(startingCurrFullExpect).then((res) => {
           const data = JSON.parse(res).data
           setPaperByResponse(data)
           console.log('開獎囉')
+
+          isOpen = true
         })
       } else {
-        console.log('未開獎', shouldGetLottery, clockTime)
+
       }
     }
 
@@ -422,19 +612,30 @@ const getLotteryTimes = () => {
         console.log('開碗動畫')
         //鎖定籌碼區
         //提示+開碗動畫
+        if ($('.condition-panel.non-visible').length > 0) {
+          resetAllCondition()
+        }
+
         $('.condition-panel').removeClass('non-visible')
         $('#open').removeClass('non-visible')
+        $('.btn-agree').addClass('brightness')
+        $('.btn-cancel').addClass('brightness')
+        $('.btn-again').addClass('brightness')
 
-        if(isOver === false) {
+        if (isOver === false) {
           $('.put-money-panel').remove()
           $('#total')[0].innerHTML = 0
+
+          const c = $('.table-chips')
+          for (let e of c) {
+            e.remove()
+          }
         }
 
         if (scaleTime === null) {
           scaleTime = setTimeout(function () {
             $('.condition-panel').addClass('non-visible')
             $('#open').addClass('non-visible')
-
             $('.bowl-panel').addClass('scale-move')
 
             if (openTime === null) {
@@ -473,6 +674,15 @@ const getLotteryTimes = () => {
     }, 1000)
   })
 }
+const resetAllCondition = () => {
+  $('.condition-panel').addClass('non-visible')
+  $('#chose').addClass('non-visible')
+  $('#onReady').addClass('non-visible')
+  $('#open').addClass('non-visible')
+  $('#please').addClass('non-visible')
+  $('#working').addClass('non-visible')
+  $('#wait').addClass('non-visible')
+}
 
 const getTimeStamp = (date) => {
   let parse = date ? new Date(date) : new Date()
@@ -486,8 +696,11 @@ const getLotteryRates = () => {
   }
   const response = api('lotteryrates', requestInfo)
   response.done(function (res) {
-    const rates = JSON.parse(res).rates
-
+    const data = JSON.parse(res)
+    const rates = data.rates
+    if (data.sign !== true) {
+      showErrorMessage(data.message)
+    }
     let sedia_third_r = document.getElementById('sedia_third_r')
     let sedia_third_w = document.getElementById('sedia_third_w')
     let sedia_fourth_r = document.getElementById('sedia_fourth_r')
@@ -495,55 +708,112 @@ const getLotteryRates = () => {
     let sedia_odd = document.getElementById('sedia_odd')
     let sedia_even = document.getElementById('sedia_even')
 
-    sedia_third_r.innerHTML = '<span>1:' + parseFloat(rates.sedia_third_r.maxrate) + '</span>'
-    sedia_third_w.innerHTML = '<span>1:' + parseFloat(rates.sedia_third_w.maxrate) + '</span>'
-    sedia_fourth_r.innerHTML = '<span>1:' + parseFloat(rates.sedia_fourth_r.maxrate) + '</span>'
-    sedia_fourth_w.innerHTML = '<span>1:' + parseFloat(rates.sedia_fourth_w.maxrate) + '</span>'
-    sedia_odd.innerHTML = sedia_odd.innerHTML + '<span>1:' + parseFloat(rates.sedia_odd.maxrate) + '</span>'
-    sedia_even.innerHTML = sedia_even.innerHTML + '<span>1:' + parseFloat(rates.sedia_even.maxrate) + '</span>'
+    sedia_third_r.innerHTML = sedia_third_r.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_third_r.maxrate) + '</span>'
+    sedia_third_w.innerHTML = sedia_third_w.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_third_w.maxrate) + '</span>'
+    sedia_fourth_r.innerHTML = sedia_fourth_r.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_fourth_r.maxrate) + '</span>'
+    sedia_fourth_w.innerHTML = sedia_fourth_w.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_fourth_w.maxrate) + '</span>'
+    sedia_odd.innerHTML = sedia_odd.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_odd.maxrate) + '</span>'
+    sedia_even.innerHTML = sedia_even.innerHTML + '<span class="label">1:' + parseFloat(rates.sedia_even.maxrate) + '</span>'
   })
 }
 
 const init = (moneyValue) => {
   getClassElement('btn-cancel').addEventListener('click', function () {
-    const l = $('.put-money-panel')
-    for (let e of l) {
-      e.remove()
+    if ($('.btn-cancel.brightness').length === 0) {
+      const c = $('.table-chips')
+      for (let e of c) {
+        e.remove()
+      }
+
+      const l = $('.put-money-panel')
+      for (let e of l) {
+        e.remove()
+      }
+      $('.btn.btn-cancel').addClass('brightness')
+
+      if (lastPutMoney !== null) {
+        $('.btn.btn-agree').addClass('brightness')
+
+      }
+      totalMoneyValue = 0
+      $('#total')[0].innerHTML = 0
+      totalMoney.update(0)
     }
   })
 
   getClassElement('btn-agree').addEventListener('click', function () {
-    if($('.put-money-panel').length > 0) {
+    if ($('.put-money-panel').length > 0 && $('.btn-agree.brightness').length === 0) {
       isOver = true
       $('.btn-agree').addClass('brightness')
       $('.btn-cancel').addClass('brightness')
+      $('.btn-again').addClass('brightness')
 
       $('.condition-panel').removeClass('non-visible')
       $('#onReady').removeClass('non-visible')
       $('.chips-img').addClass('brightness')
       $('.chip-active').removeClass('chip-active')
 
-      const l = $('.chips-box')
-      let requestInfo = {
-        orderList: [],
-        expect: startingCurrFullExpect,
-        lotteryname: 'mysedia'
-      }
-      for (let e of l) {
-        if ($(e).find('.put-money-panel').length > 0) {
-          requestInfo.orderList.push({
-            playid: $(e)[0].id,
-            price: $(e).find('.put-money-panel .put-value')[0].innerHTML
-          })
+      setTimeout(function () {
+        $('.condition-panel').addClass('non-visible')
+        $('#onReady').addClass('non-visible')
+      }, 3000)
+
+
+      if(hasCubyed !== true) {
+        const l = $('.chips-box')
+        let requestInfo = {
+          orderList: [],
+          expect: startingCurrFullExpect,
+          lotteryname: 'mysedia'
         }
+
+        let sum = 0
+        for (let e of l) {
+          if ($(e).find('.put-money-panel').length > 0) {
+            sum += parseInt($(e).find('.put-money-panel .put-value')[0].innerHTML)
+            requestInfo.orderList.push({
+              playid: $(e)[0].id,
+              price: $(e).find('.put-money-panel .put-value')[0].innerHTML
+            })
+          }
+        }
+        lastTotalMoneyValue = sum
+        lastPutMoney = $('.chips-box-panel')[0].innerHTML
+        lastMoneyValue = sum
+
+        const response = api('agreeLottery', requestInfo)
+        response.done(function (res) {
+          if (res.sign !== true) {
+            showErrorMessage(res.message)
+          }
+        })
       }
-      const response = api('agreeLottery', requestInfo)
+
+    } else {
+
+    }
+  })
+
+  getClassElement('btn-again').addEventListener('click', function () {
+    if (lastPutMoney !== null && $('.btn-again.brightness').length === 0) {
+      $('.total-bet')[0].innerHTML = lastTotalMoneyValue
+      $('.chips-box-panel')[0].innerHTML = lastPutMoney
+      $('.btn-again').addClass('brightness')
+      $('.btn-agree').removeClass('brightness')
+      $('.btn-cancel').removeClass('brightness')
+
+      btnAgainActive = true
     } else {
 
     }
   })
 
   $('.chips-box-panel').on('click', '.chips-box', function (e) {
+    if($('#sedia_even').hasClass('.put-money-panel')){
+
+    }
+
+
     const copy = e.target.innerHTML
     const chipValue = returnChips()
     let dontDoIt = false
@@ -552,20 +822,73 @@ const init = (moneyValue) => {
     }
 
     const element = $(this).find('.put-money-panel')
-    if (element.length > 0) {
-      if (dontDoIt !== true) {
-        const target = element.find('span')[0]
-        const value = parseInt(target.innerHTML)
-        target.innerHTML = value + chipValue
-      }
-    } else if (chipValue !== undefined) {
-      e.target.innerHTML = copy + `<div class="put-money-panel"><span class="put-value">${chipValue}</span></div>`
-    }
+    if (isOver === false) {
+      if (nowMoney > returnChips() && nowMoney > totalMoneyValue + returnChips()) {
+        if (element.length > 0) {
+          if (dontDoIt !== true) {
+            const target = element.find('span')[0]
+            const value = parseInt(target.innerHTML)
+            target.innerHTML = value + chipValue
+          }
+        } else if (chipValue !== undefined) {
+          $(this)[0].innerHTML = copy + `<div class="put-money-panel"><span class="put-value">${chipValue}</span></div>`
+          $('.btn.btn-cancel.brightness').removeClass('brightness')
+          $('.btn.btn-agree.brightness').removeClass('brightness')
+        }
+        //TODO 如果有按延續上把
+        if(btnAgainActive === true && lastTotalMoneyValue > 0 ){
+          totalMoneyValue += lastTotalMoneyValue
+          btnAgainActive = false
+        }
 
-    let total = totalMoneyValue
-    let parseTotal = parseInt(total, 10)
-    totalMoneyValue = parseTotal + chipValue
-    totalMoney.update(totalMoneyValue)
+        let total = totalMoneyValue
+        let parseTotal = parseInt(total, 10)
+        totalMoneyValue = parseTotal + chipValue
+        totalMoney.update(totalMoneyValue)
+      }
+      if (element.length >= 0 && nowMoney > returnChips() && nowMoney > totalMoneyValue + returnChips()) {
+        if (returnChips() === 100) {
+          if ($(this).find('.for-100').length === 0) {
+            $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-100"><img src="images/chips/100.png" alt=""></div>`
+          } else {
+            const i = $(this).find('.for-100 img').length
+            $(this).find('.for-100')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/100.png" alt="">`
+          }
+        }
+        if (returnChips() === 500) {
+          if ($(this).find('.for-500').length === 0) {
+            $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-500"><img src="images/chips/500.png" alt=""></div>`
+          } else {
+            const i = $(this).find('.for-500 img').length
+            $(this).find('.for-500')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/500.png" alt="">`
+          }
+        }
+        if (returnChips() === 1000) {
+          if ($(this).find('.for-1000').length === 0) {
+            $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-1000"><img src="images/chips/1000.png" alt=""></div>`
+          } else {
+            const i = $(this).find('.for-1000 img').length
+            $(this).find('.for-1000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/1000.png" alt="">`
+          }
+        }
+        if (returnChips() === 5000) {
+          if ($(this).find('.for-5000').length === 0) {
+            $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-5000"><img src="images/chips/5000.png" alt=""></div>`
+          } else {
+            const i = $(this).find('.for-5000 img').length
+            $(this).find('.for-5000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/5000.png" alt="">`
+          }
+        }
+        if (returnChips() === 10000) {
+          if ($(this).find('.for-10000').length === 0) {
+            $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-10000"><img src="images/chips/10000.png" alt=""></div>`
+          } else {
+            const i = $(this).find('.for-10000 img').length
+            $(this).find('.for-10000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/10000.png" alt="">`
+          }
+        }
+      }
+    }
   })
 
   let chip_10000 = getClassElement('chip-10000')
@@ -599,14 +922,17 @@ const init = (moneyValue) => {
 
   const btnExit = getClassElement('btn-exit')
   btnExit.addEventListener('click', function (e) {
+    $('.btn-confirm').removeClass('non-visible')
     confirm.classList.remove('non-visible')
     cover.classList.remove('non-visible')
+    $('.confirm-panel .hint span')[0].innerHTML = '確定要離開牌桌？'
   })
 
   const close = getClassElement('close')
   close.addEventListener('click', function (e) {
     confirm.classList.add('non-visible')
     cover.classList.add('non-visible')
+    $('.btn-confirm').addClass('non-visible')
   })
 
   const btnClose = getClassElement('btn-close')
@@ -617,7 +943,9 @@ const init = (moneyValue) => {
 
   const btnConfirm = getClassElement('btn-confirm')
   btnConfirm.addEventListener('click', function (e) {
+    // window.history.go(-2)
     window.history.back()
+
   })
 
   const btnHistory = getClassElement('btn-history')
@@ -648,6 +976,9 @@ const init = (moneyValue) => {
     const response = api('history', requestInfo)
     response.done(function (res) {
       const json = JSON.parse(res)
+      if (json.sign !== true) {
+        showErrorMessage(json.message)
+      }
       const list = json.data
 
       const panel = getClassElement('list')
@@ -662,11 +993,11 @@ const init = (moneyValue) => {
 
         switch (num) {
           case 0: {
-            dishImg = `<img src="images/list/w-dish-four.png" alt="">`
+            dishImg = `<img src="images/list/w-dish-zero.png" alt="">`
             break
           }
           case 1: {
-            dishImg = `<img src="images/list/w-dish-three.png" alt="">`
+            dishImg = `<img src="images/list/w-dish-one.png" alt="">`
             break
           }
           case 2: {
@@ -674,11 +1005,11 @@ const init = (moneyValue) => {
             break
           }
           case 3: {
-            dishImg = `<img src="images/list/w-dish-one.png" alt="">`
+            dishImg = `<img src="images/list/w-dish-three.png" alt="">`
             break
           }
           case 4: {
-            dishImg = `<img src="images/list/w-dish-zero.png" alt="">`
+            dishImg = `<img src="images/list/w-dish-four.png" alt="">`
             break
           }
         }
@@ -687,7 +1018,7 @@ const init = (moneyValue) => {
         insertElement.classList.add('list-row')
         insertElement.innerHTML = `
           <span class="index">${index < 10 ? '0' + index : index}</span>
-          <span class="sub ${isEven ? 'odd' : 'even'}">${isEven ? '單' : '雙'}</span>
+          <span class="sub ${isEven ? 'even' : 'odd'}">${isEven ? '雙' : '單'}</span>
           <span class="content">${dishImg}</span>
     `
         panel.appendChild(insertElement)
@@ -734,6 +1065,12 @@ const api = (apiName, requestInfo) => {
     }, {
       apiName: 'checkislogin',
       uri: '/Apijiekou.checkislogin'
+    }, {
+      apiName: 'betsResult',
+      uri: '/Apijiekou.betsResult'
+    }, {
+      apiName: 'betsContent',
+      uri: '/Apijiekou.betsContent'
     }]
   }
 
@@ -745,4 +1082,12 @@ const api = (apiName, requestInfo) => {
   return $.post((isMobile ? config.mobile_host : config.pc_host) + api[0].uri, requestInfo)
 }
 
+const showErrorMessage = (message) => {
+  const cover = getClassElement('black-cover')
+  const confirm = getClassElement('confirm-panel')
+
+  confirm.classList.remove('non-visible')
+  cover.classList.remove('non-visible')
+  $('.confirm-panel .hint span')[0].innerHTML = message
+}
 
