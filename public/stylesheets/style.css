@@ -289,12 +289,13 @@ a {
 .btn {
   cursor: pointer; }
 
-.btn-exit {
+.btn-exit, .btn-log {
   left: -30px;
   width: 80px;
   min-width: 80px;
-  max-width: 80px; }
-  .btn-exit .btn-exit-icon {
+  max-width: 80px;
+  margin: 5px 0; }
+  .btn-exit .btn-exit-icon, .btn-log .btn-exit-icon {
     position: absolute;
     top: 8px;
     right: 10px;

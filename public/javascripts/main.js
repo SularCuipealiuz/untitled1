@@ -27,6 +27,11 @@ let getChips = {
   chip_100: false
 }
 
+let gotoLogPage = ''
+let logPage = ''
+let homePage = ''
+let linkPage = ''
+
 let clockTime = 0
 let shouldShowMoney = false
 let stopWatch = null
@@ -116,17 +121,27 @@ const toggleAutoPlay = (boolean) => {
 
 const checkAutoPlay = () => {
   if (autoPlay === true) {
-    if (lastPutMoney !== null) {
+    console.log(lastPutMoney, nowMoney, lastTotalMoneyValue)
+    if (lastPutMoney !== null && nowMoney > lastTotalMoneyValue) {
       $('.chips-box-panel')[0].innerHTML = lastPutMoney
       $('.btn-again').addClass('brightness')
-      $('.btn-agree').click()
+      $('.btn-agree').removeClass('brightness')
+
+      setTimeout(function () {
+        $('.btn-agree').click()
+      }, 100)
+    } else {
+      toggleAutoPlay(autoPlay)
     }
   }
 }
 
 let autoPlay = false
 getClassElement('auto-play-btn').addEventListener('click', () => {
-  toggleAutoPlay(autoPlay)
+  if (lastPutMoney !== null && nowMoney > lastTotalMoneyValue) {
+    toggleAutoPlay(autoPlay)
+
+  }
 })
 
 // const ScoreBarInfo = {
@@ -218,17 +233,19 @@ window.onload = function () {
     }
   })
 
-  // const login = api('login', {
-  //   name: 'fcacbt0001',
-  //   pass: '123456'
-  // })
-  //
+  const login = api('login', {
+    name: 'fcacbt0001',
+    pass: '123456'
+  })
+
   // login.done(function () {
-  //
   // })
   api('checkislogin', {}).done(function (res) {
     const data = JSON.parse(res)
     chipsVisible(data.data.balance)
+
+    logPage = data.betsRecordURL
+    homePage = data.redirectHailURL
 
     if (data.sign !== true) {
       showErrorMessage(data.message)
@@ -236,20 +253,8 @@ window.onload = function () {
     nowMoney = data.data.balance
     countUp.update((nowMoney))
     $('.user-name')[0].innerHTML = data.data.username
+
   })
-  setInterval(function () {
-    api('checkislogin', {}).done(function (res) {
-      const data = JSON.parse(res)
-      chipsVisible(data.data.balance)
-      console.log(isOver, shouldShowMoney, isDone)
-      if (isOver === true && shouldShowMoney === true && isDone === true) {
-        countUp.update(data.data.balance)
-      }  else if (isOver === true && shouldShowMoney === false && isDone === false) {
-        isDone = true
-        countUp.update(data.data.balance)
-      }
-    })
-  }, 1000)
 }
 
 const chipsVisible = (num) => {
@@ -283,6 +288,8 @@ const getLoadOpenCode = async (expect) => {
 
 const resetInit = () => {
   resetChips()
+
+  winMoney.update(0)
   btnAgainActive = false
   shouldShowMoney = false
   isOver = false
@@ -354,7 +361,6 @@ const resetInit = () => {
         $('.plate').removeClass('plate-shake-animation')
 
         setTimeout(function () {
-          console.log(nowMoney, lastTotalMoneyValue)
           //TODO bug
           if (lastPutMoney !== null && nowMoney > lastTotalMoneyValue) {
             $('.btn-again').removeClass('brightness')
@@ -395,57 +401,55 @@ const getLotteryTimes = () => {
     api('betsContent', {'expect': startingCurrFullExpect, 'lotteryname': 'mysedia'}).done(function (res) {
       const data = JSON.parse(res).data
 
-
-
-      if(data.length>0) {
+      if (data.length > 0) {
         //TODO 有下住了
         hasCubyed = true
         let st = 0
-        for(let e of data){
+        for (let e of data) {
           let money = parseInt(e.amount)
           st += money
           let copy = $(`#${e.playid}`)[0].innerHTML
           $(`#${e.playid}`)[0].innerHTML = copy + `<div class="put-money-panel"><span class="put-value">${money}</span></div>`
 
-          let n1 = parseInt(money/10000)
+          let n1 = parseInt(money / 10000)
           let m1 = money % 10000
-          let n2 = parseInt(m1/5000)
+          let n2 = parseInt(m1 / 5000)
           let m2 = m1 % 5000
-          let n3 = parseInt(m2/1000)
+          let n3 = parseInt(m2 / 1000)
           let m3 = m2 % 1000
-          let n4 = parseInt(m3/500)
+          let n4 = parseInt(m3 / 500)
           let m4 = m3 % 500
-          let n5 = parseInt(m4/100)
+          let n5 = parseInt(m4 / 100)
           let m5 = m4 % 100
 
-          if(n1 > 0){
+          if (n1 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-100"><img src="images/chips/100.png" alt=""></div>`
 
-            for(let i = 0; i< n1; i++){
+            for (let i = 0; i < n1; i++) {
               $(`#${e.playid} .for-100`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/100.png" alt="">`
             }
           }
-          if(n2 > 0){
+          if (n2 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-500"><img src="images/chips/500.png" alt=""></div>`
-            for(let i = 0; i< n1; i++){
+            for (let i = 0; i < n1; i++) {
               $(`#${e.playid} .for-500`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/500.png" alt="">`
             }
           }
-          if(n3 > 0){
+          if (n3 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-1000"><img src="images/chips/1000.png" alt=""></div>`
-            for(let i = 0; i< n1; i++){
+            for (let i = 0; i < n1; i++) {
               $(`#${e.playid} .for-1000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/1000.png" alt="">`
             }
           }
-          if(n4 > 0){
+          if (n4 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-5000"><img src="images/chips/5000.png" alt=""></div>`
-            for(let i = 0; i< n1; i++){
+            for (let i = 0; i < n1; i++) {
               $(`#${e.playid} .for-5000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/5000.png" alt="">`
             }
           }
-          if(n5 > 0){
+          if (n5 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-10000"><img src="images/chips/10000.png" alt=""></div>`
-            for(let i = 0; i< n1; i++){
+            for (let i = 0; i < n1; i++) {
               $(`#${e.playid} .for-10000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/10000.png" alt="">`
             }
           }
@@ -456,7 +460,6 @@ const getLotteryTimes = () => {
         totalMoney.update(st)
       }
     })
-
 
     clockTime = data.remainTime
     const shouldGetLottery = -3
@@ -553,6 +556,17 @@ const getLotteryTimes = () => {
               const response = api('betsResult', info)
 
               response.done(e => {
+                //TODO
+
+                api('checkislogin', {}).done(function (res) {
+                  const data = JSON.parse(res)
+                  if (data.sign !== true) {
+                    showErrorMessage(data.message)
+                  }
+                  nowMoney = data.data.balance
+                  countUp.update((nowMoney))
+                })
+
                 shouldShowMoney = true
 
                 let reg = /,+-$/gi
@@ -720,6 +734,8 @@ const getLotteryRates = () => {
 const init = (moneyValue) => {
   getClassElement('btn-cancel').addEventListener('click', function () {
     if ($('.btn-cancel.brightness').length === 0) {
+      btnAgainActive = false
+
       const c = $('.table-chips')
       for (let e of c) {
         e.remove()
@@ -730,11 +746,11 @@ const init = (moneyValue) => {
         e.remove()
       }
       $('.btn.btn-cancel').addClass('brightness')
-
       if (lastPutMoney !== null) {
-        $('.btn.btn-agree').addClass('brightness')
-
+        $('.btn.btn-again').removeClass('brightness')
       }
+      $('.btn.btn-agree').addClass('brightness')
+
       totalMoneyValue = 0
       $('#total')[0].innerHTML = 0
       totalMoney.update(0)
@@ -758,8 +774,7 @@ const init = (moneyValue) => {
         $('#onReady').addClass('non-visible')
       }, 3000)
 
-
-      if(hasCubyed !== true) {
+      if (hasCubyed !== true) {
         const l = $('.chips-box')
         let requestInfo = {
           orderList: [],
@@ -786,6 +801,14 @@ const init = (moneyValue) => {
           if (res.sign !== true) {
             showErrorMessage(res.message)
           }
+          api('checkislogin', {}).done(function (res) {
+            const data = JSON.parse(res)
+            if (data.sign !== true) {
+              showErrorMessage(data.message)
+            }
+            nowMoney = data.data.balance
+            countUp.update((nowMoney))
+          })
         })
       }
 
@@ -809,10 +832,12 @@ const init = (moneyValue) => {
   })
 
   $('.chips-box-panel').on('click', '.chips-box', function (e) {
-    if($('#sedia_even').hasClass('.put-money-panel')){
-
+    if ($('#sedia_even .put-money-panel').length > 0 && $(e.target)[0].id === 'sedia_odd') {
+      return
     }
-
+    if ($('#sedia_odd .put-money-panel').length > 0 && $(e.target)[0].id === 'sedia_even') {
+      return
+    }
 
     const copy = e.target.innerHTML
     const chipValue = returnChips()
@@ -836,7 +861,7 @@ const init = (moneyValue) => {
           $('.btn.btn-agree.brightness').removeClass('brightness')
         }
         //TODO 如果有按延續上把
-        if(btnAgainActive === true && lastTotalMoneyValue > 0 ){
+        if (btnAgainActive === true && lastTotalMoneyValue > 0) {
           totalMoneyValue += lastTotalMoneyValue
           btnAgainActive = false
         }
@@ -922,10 +947,22 @@ const init = (moneyValue) => {
 
   const btnExit = getClassElement('btn-exit')
   btnExit.addEventListener('click', function (e) {
+    gotoLogPage = false
+    linkPage = homePage
     $('.btn-confirm').removeClass('non-visible')
     confirm.classList.remove('non-visible')
     cover.classList.remove('non-visible')
     $('.confirm-panel .hint span')[0].innerHTML = '確定要離開牌桌？'
+  })
+
+  const btnLog = getClassElement('btn-log')
+  btnLog.addEventListener('click', function (e) {
+    gotoLogPage = true
+    linkPage = logPage
+    $('.btn-confirm').removeClass('non-visible')
+    confirm.classList.remove('non-visible')
+    cover.classList.remove('non-visible')
+    $('.confirm-panel .hint span')[0].innerHTML = '是否開啟投注紀錄頁面？'
   })
 
   const close = getClassElement('close')
@@ -944,8 +981,13 @@ const init = (moneyValue) => {
   const btnConfirm = getClassElement('btn-confirm')
   btnConfirm.addEventListener('click', function (e) {
     // window.history.go(-2)
-    window.history.back()
-
+    if (gotoLogPage === true) {
+      window.open(linkPage)
+    } else {
+      window.parent.postMessage({
+        'redirectHailURL' : linkPage
+      }, "*")
+    }
   })
 
   const btnHistory = getClassElement('btn-history')

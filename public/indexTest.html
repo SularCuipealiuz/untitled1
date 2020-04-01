@@ -12,7 +12,7 @@
         <span>为了更好的体验，请使用横屏浏览</span>
     </div>
 </div>
-    <iframe class="iframe-view" src="/index.html" frameborder="0"></iframe>
+    <iframe id="gameFrame" class="iframe-view" src="/index.html" frameborder="0"></iframe>
     <script>
       // document.body.addEventListener('touchmove', function (e) {
       //   e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
@@ -29,6 +29,12 @@
           window.scrollTo(0, 1)
         }, 0);
       };
+
+      window.addEventListener("message", function(event) {
+        if (event.data.hasOwnProperty('redirectHailURL')) {
+          window.location.href = event.data.redirectHailURL
+        }
+      }, false);
 
     </script>
 </body>
