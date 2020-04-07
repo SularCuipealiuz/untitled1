@@ -426,31 +426,31 @@ const getLotteryTimes = () => {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-100"><img src="images/chips/100.png" alt=""></div>`
 
             for (let i = 0; i < n1; i++) {
-              $(`#${e.playid} .for-100`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/100.png" alt="">`
+              $(`#${e.playid} .for-100`)[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/100.png" alt="">`
             }
           }
           if (n2 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-500"><img src="images/chips/500.png" alt=""></div>`
             for (let i = 0; i < n1; i++) {
-              $(`#${e.playid} .for-500`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/500.png" alt="">`
+              $(`#${e.playid} .for-500`)[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/500.png" alt="">`
             }
           }
           if (n3 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-1000"><img src="images/chips/1000.png" alt=""></div>`
             for (let i = 0; i < n1; i++) {
-              $(`#${e.playid} .for-1000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/1000.png" alt="">`
+              $(`#${e.playid} .for-1000`)[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/1000.png" alt="">`
             }
           }
           if (n4 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-5000"><img src="images/chips/5000.png" alt=""></div>`
             for (let i = 0; i < n1; i++) {
-              $(`#${e.playid} .for-5000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/5000.png" alt="">`
+              $(`#${e.playid} .for-5000`)[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/5000.png" alt="">`
             }
           }
           if (n5 > 0) {
             $(`#${e.playid} .put-chips-panel`)[0].innerHTML += `<div class="table-chips for-10000"><img src="images/chips/10000.png" alt=""></div>`
             for (let i = 0; i < n1; i++) {
-              $(`#${e.playid} .for-10000`)[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/10000.png" alt="">`
+              $(`#${e.playid} .for-10000`)[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/10000.png" alt="">`
             }
           }
           const btn = $('.btn-agree').removeClass('brightness')
@@ -877,7 +877,7 @@ const init = (moneyValue) => {
             $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-100"><img src="images/chips/100.png" alt=""></div>`
           } else {
             const i = $(this).find('.for-100 img').length
-            $(this).find('.for-100')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/100.png" alt="">`
+            $(this).find('.for-100')[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/100.png" alt="">`
           }
         }
         if (returnChips() === 500) {
@@ -885,7 +885,7 @@ const init = (moneyValue) => {
             $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-500"><img src="images/chips/500.png" alt=""></div>`
           } else {
             const i = $(this).find('.for-500 img').length
-            $(this).find('.for-500')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/500.png" alt="">`
+            $(this).find('.for-500')[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/500.png" alt="">`
           }
         }
         if (returnChips() === 1000) {
@@ -893,7 +893,7 @@ const init = (moneyValue) => {
             $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-1000"><img src="images/chips/1000.png" alt=""></div>`
           } else {
             const i = $(this).find('.for-1000 img').length
-            $(this).find('.for-1000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/1000.png" alt="">`
+            $(this).find('.for-1000')[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/1000.png" alt="">`
           }
         }
         if (returnChips() === 5000) {
@@ -901,7 +901,7 @@ const init = (moneyValue) => {
             $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-5000"><img src="images/chips/5000.png" alt=""></div>`
           } else {
             const i = $(this).find('.for-5000 img').length
-            $(this).find('.for-5000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/5000.png" alt="">`
+            $(this).find('.for-5000')[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/5000.png" alt="">`
           }
         }
         if (returnChips() === 10000) {
@@ -909,7 +909,7 @@ const init = (moneyValue) => {
             $(this).find('.put-chips-panel')[0].innerHTML += `<div class="table-chips for-10000"><img src="images/chips/10000.png" alt=""></div>`
           } else {
             const i = $(this).find('.for-10000 img').length
-            $(this).find('.for-10000')[0].innerHTML += `<img style="top: -${i * 3}px" src="images/chips/10000.png" alt="">`
+            $(this).find('.for-10000')[0].innerHTML += `<img style="top: -${i * 2}px" src="images/chips/10000.png" alt="">`
           }
         }
       }

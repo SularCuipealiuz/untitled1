@@ -811,6 +811,14 @@ a {
               pointer-events: none;
             }
 
+            .pl-chips-panel {
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              margin: auto;
+            }
             .put-chips-panel {
               position: absolute;
               left: 5px;
@@ -821,7 +829,6 @@ a {
               height: 30px;
               pointer-events: none;
               width: 100px;
-
 
               .table-chips {
                 width: 30px;
